@@ -10,18 +10,17 @@ export default defineConfig(({ mode }) => ({
   server: {
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5000', // placeholder, will fix below
+        target: process.env.VITE_API_URL || 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       },
     },
   },
   define: {
-    global: 'globalThis',
-    ...(mode === 'production' && {
-      'console.log': '() => {}',
-      'console.debug': '() => {}',
-      'console.info': '() => {}'
-    })
+    global: 'globalThis'
+  },
+  esbuild: {
+    // Supprimer console.* uniquement en production
+    drop: mode === 'production' ? ['console', 'debugger'] : []
   }
 }))
