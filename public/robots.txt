@@ -4,16 +4,16 @@ Allow: /
 # Sitemap
 Sitemap: https://adjamegare.com/sitemap.xml
 
-# Optimisation pour les moteurs de recherche
+# Crawl delay
 Crawl-delay: 1
 
 # Bloquer l'accès aux fichiers sensibles
 Disallow: /api/
-Disallow: /*.json$
 Disallow: /src/
 Disallow: /node_modules/
+Disallow: /*.json$
 
-# Autoriser l'accès aux fichiers CSS et JS pour un meilleur rendu
+# Autoriser CSS, JS et images pour un meilleur rendu
 Allow: /*.css$
 Allow: /*.js$
 Allow: /*.png$
@@ -22,3 +22,8 @@ Allow: /*.jpeg$
 Allow: /*.gif$
 Allow: /*.svg$
 Allow: /*.webp$
+
+# Optimisation spécifique pour Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
