@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronDown, User, Globe, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronDown, User, Globe, LogOut, Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -10,9 +10,10 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '../hooks/use-toast'; // ✅ pour afficher les toasts
+import { useToast } from '../hooks/use-toast';
 
 const Header = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -33,7 +34,7 @@ const Header = () => {
     i18n.changeLanguage(langCode);
   };
 
-  // ✅ Redirection + toast de bienvenue
+  // Redirection + toast de bienvenue
   const handleAccountClick = () => {
     if (user?.role === 'admin') {
       toast({
@@ -52,6 +53,12 @@ const Header = () => {
     }
   };
 
+  // Fermer le menu mobile après navigation
+  const handleMobileNavigation = (path) => {
+    navigate(path);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <header className="bg-[#e85805] text-white shadow-md relative z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,7 +68,7 @@ const Header = () => {
             <Link to="/" className="text-2xl font-bold">ADJAMEGARE</Link>
           </div>
 
-          {/* Navigation Menu */}
+          {/* Navigation Menu - Desktop */}
           <nav className="hidden md:flex items-center space-x-8">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center space-x-1 text-white hover:text-green-100 transition-colors">
@@ -84,8 +91,8 @@ const Header = () => {
             </Link>
           </nav>
 
-          {/* Right side - Language and User */}
-          <div className="flex items-center space-x-4">
+          {/* Right side - Language and User - Desktop */}
+          <div className="hidden md:flex items-center space-x-4">
             {/* Sélecteur de langue */}
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center space-x-2 text-white hover:text-green-100 transition-colors">
@@ -107,7 +114,6 @@ const Header = () => {
                   <Button 
                     variant="ghost" 
                     className="text-white hover:text-green-100 hover:bg-green-600 transition-all duration-200"
-                    onClick={handleAccountClick}
                   >
                     <User className="w-4 h-4 mr-2" />
                     {user?.name || user?.email || t('my_account')}
@@ -115,13 +121,8 @@ const Header = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="mt-2 bg-white text-black">
-                  {/* ✅ Item conditionnel : Dashboard si admin, Profil sinon */}
-                  <DropdownMenuItem>
-                    {user?.role === 'admin' ? (
-                      <Link to="/admin/dashboard">{t('dashboard')}</Link>
-                    ) : (
-                      <Link to="/profile">{t('my_profile')}</Link>
-                    )}
+                  <DropdownMenuItem onClick={handleAccountClick}>
+                    {user?.role === 'admin' ? t('dashboard') : t('my_profile')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={logout} className="text-red-600">
                     <LogOut className="w-4 h-4 mr-2" /> {t('logout')}
@@ -139,8 +140,123 @@ const Header = () => {
               </Button>
             )}
           </div>
+
+          {/* Hamburger Menu - Mobile/Tablet */}
+          <div className="md:hidden flex items-center space-x-2">
+            {/* Langue mobile - version compacte */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center space-x-1 text-white hover:text-green-100 transition-colors p-2">
+                <Globe className="w-4 h-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="mt-2 bg-white text-black">
+                <DropdownMenuItem onClick={() => handleLanguageChange('fr')}>Français</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleLanguageChange('en')}>English</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleLanguageChange('es')}>Español</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Menu hamburger */}
+            <Button
+              variant="ghost"
+              className="text-white hover:text-green-100 hover:bg-green-600 p-2"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-[#d14704] border-t border-orange-600">
+          <div className="px-4 py-3 space-y-3">
+            {/* Navigation Links */}
+            <div className="space-y-2">
+              <div className="text-green-100 font-medium text-sm uppercase tracking-wide mb-2">
+                {t('plan_your_trip')}
+              </div>
+              <button 
+                onClick={() => handleMobileNavigation('/search')}
+                className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
+              >
+                {t('search_a_trip')}
+              </button>
+              <button 
+                onClick={() => handleMobileNavigation('/bus-stations')}
+                className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
+              >
+                {t('bus_stations')}
+              </button>
+              <button 
+                onClick={() => handleMobileNavigation('/routes')}
+                className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
+              >
+                {t('routes')}
+              </button>
+            </div>
+
+            <hr className="border-orange-600" />
+
+            {/* Other Links */}
+            <button 
+              onClick={() => handleMobileNavigation('/track-travel')}
+              className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
+            >
+              {t('track_travel')}
+            </button>
+            
+            <button 
+              onClick={() => handleMobileNavigation('/help')}
+              className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
+            >
+              {t('help')}
+            </button>
+
+            <hr className="border-orange-600" />
+
+            {/* User Account Section */}
+            {isAuthenticated ? (
+              <div className="space-y-2">
+                <div className="text-green-100 font-medium text-sm">
+                  {user?.name || user?.email || t('my_account')}
+                </div>
+                <button 
+                  onClick={() => {
+                    handleAccountClick();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  {user?.role === 'admin' ? t('dashboard') : t('my_profile')}
+                </button>
+                <button 
+                  onClick={() => {
+                    logout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center w-full text-left text-red-200 hover:text-red-100 py-2 px-3 rounded hover:bg-red-600 transition-colors"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  {t('logout')}
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => {
+                  navigate('/login');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="flex items-center w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
+              >
+                <User className="w-4 h-4 mr-2" />
+                {t('register_login')}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };

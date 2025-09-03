@@ -282,7 +282,7 @@ const handleFromInputChange = useCallback((e) => {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('/heroImage.png')`
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('/heroImage.webp')`
         }}
       />
 

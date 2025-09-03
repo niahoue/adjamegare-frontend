@@ -1,11 +1,8 @@
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://adjamegare.com/sitemap.xml
+Sitemap: https://www.adjamegare.com/sitemap.xml
 
-# Crawl delay
-Crawl-delay: 1
 
 # Bloquer l'accès aux fichiers sensibles
 Disallow: /api/
@@ -13,7 +10,7 @@ Disallow: /src/
 Disallow: /node_modules/
 Disallow: /*.json$
 
-# Autoriser CSS, JS et images pour un meilleur rendu
+
 Allow: /*.css$
 Allow: /*.js$
 Allow: /*.png$
@@ -23,7 +20,6 @@ Allow: /*.gif$
 Allow: /*.svg$
 Allow: /*.webp$
 
-# Optimisation spécifique pour Googlebot
+
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 1

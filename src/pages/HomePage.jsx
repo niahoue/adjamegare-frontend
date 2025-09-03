@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Header from '../components/Header'
 import HeroSection from '../components/HeroSection';
 import QuickActions from '../components/QuickActions';
@@ -14,8 +14,10 @@ const HomePage = () => {
       <Header />
       <HeroSection />
       <QuickActions />
-      <FeaturesSection />
-      <StatsSection />
+      <div className="hidden lg:block">
+        <FeaturesSection />
+        <StatsSection />
+      </div>
       <BrandsSection />
       <WhereToNextSection />
       <Footer />
