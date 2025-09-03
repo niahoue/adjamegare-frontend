@@ -1,13 +1,86 @@
-// src/services/apiService.js
+// src/services/apiService.js - Optimisations frontend
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// OPTIMISATION 1: Configuration axios optimisée pour la production
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-  timeout: 30000,
+  timeout: 45000, // Réduit de 60s à 45s
+  // Optimisations HTTP
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    // Cache-Control pour certaines requêtes
+    'Cache-Control': 'public, max-age=300' // 5 min de cache navigateur
+  },
+  // Compression automatique
+  decompress: true,
 });
+
+// OPTIMISATION 2: Cache local simple pour les données statiques
+const localCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+const getCachedData = (key) => {
+  const cached = localCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    console.log(`📱 Cache local hit: ${key}`);
+    return cached.data;
+  }
+  return null;
+};
+
+const setCachedData = (key, data) => {
+  localCache.set(key, { data, timestamp: Date.now() });
+  // Nettoyer le cache si trop grand (max 50 entrées)
+  if (localCache.size > 50) {
+    const firstKey = localCache.keys().next().value;
+    localCache.delete(firstKey);
+  }
+};
+
+// OPTIMISATION 3: Retry logic amélioré
+const retryConfig = {
+  retries: 3,
+  retryDelay: (retryCount) => {
+    console.log(`🔄 Tentative ${retryCount} de reconnexion...`);
+    return Math.min(1000 * Math.pow(2, retryCount), 5000); // Exponential backoff, max 5s
+  },
+  retryCondition: (error) => {
+    // Retry sur erreurs réseau, timeouts, et certains codes d'erreur serveur
+    return !error.response || 
+           error.code === 'ECONNABORTED' ||
+           error.code === 'NETWORK_ERROR' ||
+           (error.response.status >= 500 && error.response.status < 600) ||
+           error.response.status === 429; // Too Many Requests
+  },
+};
+
+// Fonction retry personnalisée
+const retryRequest = async (requestFn, config = retryConfig) => {
+  let lastError;
+  
+  for (let i = 0; i <= config.retries; i++) {
+    try {
+      const result = await requestFn();
+      return result;
+    } catch (error) {
+      lastError = error;
+      
+      if (i === config.retries || !config.retryCondition(error)) {
+        break;
+      }
+      
+      const delay = config.retryDelay(i);
+      console.log(`⏳ Attente ${delay}ms avant nouvelle tentative...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError;
+};
 
 // Intercepteur pour injecter le token d'accès dans les requêtes
 api.interceptors.request.use(
@@ -16,6 +89,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // OPTIMISATION: Ajouter des headers de performance
+    config.headers['X-Requested-With'] = 'XMLHttpRequest';
+    
     return config;
   },
   (error) => {
@@ -23,36 +100,63 @@ api.interceptors.request.use(
   }
 );
 
-// Intercepteur de réponse pour gérer les tokens expirés
+// OPTIMISATION 4: Intercepteur de réponse amélioré avec meilleure gestion d'erreur
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (!error.response || (error.response.status === 401 && !originalRequest._retry)) {
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-        try {
-          const res = await api.post('/users/refresh');
-          if (res.data.success) {
-            localStorage.setItem('accessToken', res.data.token);
-            originalRequest.headers.Authorization = `Bearer ${res.data.token}`;
-            return api(originalRequest);
-          }
-        } catch (refreshError) {
-          console.error('Impossible de rafraîchir le token, déconnexion:', refreshError);
-          localStorage.removeItem('accessToken');
-          window.location.href = '/login';
-          return Promise.reject(refreshError.response?.data || { message: refreshError.message || 'Refresh token invalide.' });
-        }
+    // Log détaillé des erreurs pour debug
+    console.error('🚨 Erreur API:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      message: error.message,
+      code: error.code
+    });
+
+    // Gestion spécifique des erreurs réseau
+    if (!error.response) {
+      if (error.code === 'ECONNABORTED') {
+        console.error('⏰ Timeout de requête');
+      } else if (error.code === 'ERR_NETWORK') {
+        console.error('🌐 Erreur réseau - vérifiez votre connexion');
       }
-      return Promise.reject(error.response?.data || { message: error.message || 'Erreur réseau inconnue.' });
+      return Promise.reject({
+        message: 'Problème de connexion réseau. Vérifiez votre connexion internet.',
+        code: error.code
+      });
     }
-    return Promise.reject(error.response.data);
+
+    // Gestion du token expiré
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        console.log('🔄 Tentative de rafraîchissement du token...');
+        const res = await api.post('/users/refresh');
+        if (res.data.success) {
+          localStorage.setItem('accessToken', res.data.token);
+          originalRequest.headers.Authorization = `Bearer ${res.data.token}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error('❌ Impossible de rafraîchir le token:', refreshError);
+        localStorage.removeItem('accessToken');
+        window.location.href = '/login';
+        return Promise.reject({
+          message: 'Session expirée, veuillez vous reconnecter.',
+          requiresLogin: true
+        });
+      }
+    }
+
+    return Promise.reject(error.response?.data || {
+      message: error.message || 'Erreur inconnue',
+      status: error.response?.status
+    });
   }
 );
 
-// Fonctions d'authentification
+// Fonctions d'authentification (inchangées)
 export const authApi = {
   register: (userData) => api.post('/users/register', userData),
   login: (credentials) => api.post('/users/login', credentials),
@@ -64,40 +168,140 @@ export const authApi = {
   refresh: () => api.post('/users/refresh'),
 };
 
-// Fonctions de voyage et réservation
+// OPTIMISATION 5: Fonctions voyage avec cache local et retry
 export const travelApi = {
-  searchRoutes: (params) => api.get('/travel/routes/search', { params }),
-  getAllRoutes: () => api.get('/travel/routes/all'),
-  getBusLayout: (busId, params) => api.get(`/travel/buses/${busId}/layout`, { params }),
-  getRouteById: (id) => api.get(`/travel/routes/${id}`),
-  createBooking: (bookingData) => api.post('/travel/bookings', bookingData),
+  // Requêtes avec retry automatique pour les endpoints critiques
+  searchRoutes: (params) => retryRequest(() => api.get('/travel/routes/search', { params })),
+  
+  getAllRoutes: () => {
+    const cacheKey = 'all-routes';
+    const cached = getCachedData(cacheKey);
+    if (cached) return Promise.resolve(cached);
+    
+    return retryRequest(() => api.get('/travel/routes/all'))
+      .then(response => {
+        setCachedData(cacheKey, response);
+        return response;
+      });
+  },
+
+  // Endpoints avec cache local pour données statiques
+  getDepartureCities: () => {
+    const cacheKey = 'departure-cities';
+    const cached = getCachedData(cacheKey);
+    if (cached) return Promise.resolve(cached);
+    
+    return retryRequest(() => api.get('/travel/cities/departure'))
+      .then(response => {
+        setCachedData(cacheKey, response);
+        return response;
+      });
+  },
+
+  getArrivalCities: () => {
+    const cacheKey = 'arrival-cities';
+    const cached = getCachedData(cacheKey);
+    if (cached) return Promise.resolve(cached);
+    
+    return retryRequest(() => api.get('/travel/cities/arrival'))
+      .then(response => {
+        setCachedData(cacheKey, response);
+        return response;
+      });
+  },
+
+  getAllCities: () => {
+    const cacheKey = 'all-cities';
+    const cached = getCachedData(cacheKey);
+    if (cached) return Promise.resolve(cached);
+    
+    return retryRequest(() => api.get('/travel/cities/all'))
+      .then(response => {
+        setCachedData(cacheKey, response);
+        return response;
+      });
+  },
+
+  getCompanies: () => {
+    const cacheKey = 'companies';
+    const cached = getCachedData(cacheKey);
+    if (cached) return Promise.resolve(cached);
+    
+    return retryRequest(() => api.get('/travel/companies'))
+      .then(response => {
+        setCachedData(cacheKey, response);
+        return response;
+      });
+  },
+
+  getSuggestedRoutes: () => {
+    const cacheKey = 'suggested-routes';
+    const cached = getCachedData(cacheKey);
+    if (cached) return Promise.resolve(cached);
+    
+    return retryRequest(() => api.get('/travel/routes/suggested'))
+      .then(response => {
+        setCachedData(cacheKey, response);
+        return response;
+      });
+  },
+
+  getPopularRoutes: () => {
+    const cacheKey = 'popular-routes';
+    const cached = getCachedData(cacheKey);
+    if (cached) return Promise.resolve(cached);
+    
+    return retryRequest(() => api.get('/travel/routes/popular'))
+      .then(response => {
+        setCachedData(cacheKey, response);
+        return response;
+      });
+  },
+
+  // Autres endpoints sans cache mais avec retry
+  getBusLayout: (busId, params) => retryRequest(() => api.get(`/travel/buses/${busId}/layout`, { params })),
+  getRouteById: (id) => retryRequest(() => api.get(`/travel/routes/${id}`)),
+  createBooking: (bookingData) => api.post('/travel/bookings', bookingData), // Pas de retry pour les créations
   getUserBookings: () => api.get('/travel/bookings/my'),
   getBookingById: (bookingId) => api.get(`/travel/bookings/${bookingId}`),
   updateBookingStatus: (bookingId, statusData) => api.put(`/travel/bookings/${bookingId}/status`, statusData),
-  getSuggestedRoutes: () => api.get('/travel/routes/suggested'),
-  getCompanies: () => api.get('/travel/companies'),
   trackBooking: (bookingId) => api.get(`/travel/bookings/${bookingId}/track`),
   downloadTicket: (bookingId) => api.get(`/travel/bookings/${bookingId}/ticket`),
   getStations: () => api.get('/travel/stations'),
   getStationById: (stationId) => api.get(`/travel/stations/${stationId}`),
-  getPopularRoutes: () => api.get('/travel/routes/popular'),
-  getDepartureCities: () => api.get('/travel/cities/departure'),
-  getArrivalCities: () => api.get('/travel/cities/arrival'),
-  getAllCities: () => api.get('/travel/cities/all'),
 };
 
-export const paymentApi = {
-  initiatePayment: (bookingId) => {
-    return api.post('/payment/initiate', { bookingId });
-  },
-  checkPaymentStatus: (invoiceToken) => {
-    return api.get(`/payment/check-status/${invoiceToken}`);
+// OPTIMISATION 6: Fonction pour précharger les données critiques
+export const preloadCriticalData = async () => {
+  console.log('🚀 Préchargement des données critiques...');
+  
+  try {
+    // Précharger en parallèle les données les plus utilisées
+    const promises = [
+      travelApi.getAllCities(),
+      travelApi.getCompanies(),
+      travelApi.getSuggestedRoutes(),
+    ];
+
+    await Promise.allSettled(promises);
+    console.log('✅ Données critiques préchargées');
+  } catch (error) {
+    console.warn('⚠️ Erreur lors du préchargement:', error);
   }
 };
 
-// --- NOUVEAU : Fonctions API pour l'administration ---
-// Extrait de la partie adminApi dans apiService.js
+// OPTIMISATION 7: Fonction pour nettoyer le cache
+export const clearCache = () => {
+  localCache.clear();
+  console.log('🗑️ Cache local nettoyé');
+};
 
+export const paymentApi = {
+  initiatePayment: (bookingId) => api.post('/payment/initiate', { bookingId }),
+  checkPaymentStatus: (invoiceToken) => api.get(`/payment/check-status/${invoiceToken}`),
+};
+
+// Admin API (inchangée)
 export const adminApi = {
   // Utilisateurs
   getUsersCount: () => api.get('/admin/users/count'),
@@ -140,10 +344,10 @@ export const adminApi = {
   updateCompany: (id, companyData) => api.put(`/admin/companies/${id}`, companyData),
   deleteCompany: (id) => api.delete(`/admin/companies/${id}`),
 
-  // Revenus - FONCTION AJOUTÉE
+  // Revenus
   getTotalRevenue: () => api.get('/admin/revenue/total'),
 
-   // Villes (NOUVEAU) ✨
+  // Villes
   getCitiesCount: () => api.get('/admin/cities/count'), 
   getCitiesAdmin: () => api.get('/admin/cities'),
   getCityById: (id) => api.get(`/admin/cities/${id}`),
@@ -151,8 +355,7 @@ export const adminApi = {
   updateCity: (id, cityData) => api.put(`/admin/cities/${id}`, cityData),
   deleteCity: (id) => api.delete(`/admin/cities/${id}`),
 
-
-    // Partenaires (nouveau ✨)
+  // Partenaires
   getPartnersCount: () => api.get('/admin/partners/count'),
   getAllPartners: () => api.get('/admin/partners'),
   addPartnerDirectly: (partnerData) => api.post('/admin/partners', partnerData),
@@ -160,17 +363,12 @@ export const adminApi = {
   rejectPartner: (id) => api.put(`/admin/partners/${id}/reject`),
   deletePartner: (id) => api.delete(`/admin/partners/${id}`),
   updatePartner: (id, partnerData) => api.put(`/admin/partners/${id}`, partnerData),
-
 };
 
-
-
-
-// --- Partenaires côté public ---
+// Partenaires côté public (inchangée)
 export const partnerApi = {
   createRequest: (formData) => api.post('/partners/request', formData),
 };
-
 
 export default {
   auth: authApi,
@@ -178,4 +376,7 @@ export default {
   payment: paymentApi,
   admin: adminApi, 
   partner: partnerApi,
+  // Nouvelles fonctions utilitaires
+  preloadCriticalData,
+  clearCache,
 };

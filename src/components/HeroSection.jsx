@@ -234,7 +234,7 @@ const handleFromInputChange = useCallback((e) => {
     inputRef,
     dropdownRef
   }) => (
-    <div className="flex-1 space-y-2" ref={dropdownRef}>
+    <div className="space-y-2" ref={dropdownRef}>
       <label className="text-sm font-medium text-gray-700">{label}</label>
       <div className="relative">
         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-20" />
@@ -320,56 +320,65 @@ const handleFromInputChange = useCallback((e) => {
             </label>
           </div>
 
-          {/* Première ligne : De, Vers et Date de départ */}
-          <div className="flex flex-col lg:flex-row gap-4 items-end mb-4">
-            {/* From Location avec filtre */}
-            <CitySelector
-              label={t('from_location_label') || 'De'}
-              placeholder={t('from_location_placeholder') || 'Tapez pour rechercher une ville de départ'}
-              value={fromLocation}
-              searchTerm={fromSearchTerm}
-              onInputChange={handleFromInputChange}
-              onCitySelect={handleFromLocationSelect}
-              filteredCities={getFilteredFromCities()}
-              dropdownOpen={fromDropdownOpen}
-              setDropdownOpen={setFromDropdownOpen}
-              disabled={isSearching || isLoadingCities}
-              inputRef={fromInputRef}
-              dropdownRef={fromDropdownRef}
-            />
+          {/* Première ligne : De, Vers et Date de départ - Grid layout pour un espacement équitable */}
+          <div className="grid grid-cols-1 lg:grid-cols-7 gap-4 items-end mb-4">
+            {/* From Location - 2 colonnes sur 7 */}
+            <div className="lg:col-span-2">
+              <CitySelector
+                label={t('from_location_label') || 'De'}
+                placeholder={t('from_location_placeholder') || 'Tapez pour rechercher une ville de départ'}
+                value={fromLocation}
+                searchTerm={fromSearchTerm}
+                onInputChange={handleFromInputChange}
+                onCitySelect={handleFromLocationSelect}
+                filteredCities={getFilteredFromCities()}
+                dropdownOpen={fromDropdownOpen}
+                setDropdownOpen={setFromDropdownOpen}
+                disabled={isSearching || isLoadingCities}
+                inputRef={fromInputRef}
+                dropdownRef={fromDropdownRef}
+              />
+            </div>
 
-            {/* Swap Button */}
-            <div className="flex justify-center items-end pb-1 lg:pb-2">
+            {/* Swap Button - Centré et réduit l'espace */}
+            <div className="lg:col-span-1 flex justify-center items-end pb-2">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={handleSwapLocations}
-                className="p-2 text-gray-500 hover:text-[#73D700] hover:bg-green-50 rounded-full transition-all duration-200 border border-gray-200 hover:border-[#73D700] mx-1"
+                className={cn(
+                  "p-2 rounded-full transition-all duration-200 border mx-auto",
+                  tripType === 'roundTrip'
+                    ? "text-[#73D700] hover:text-[#5CB800] bg-green-50 hover:bg-green-100 border-[#73D700] hover:border-[#5CB800]"
+                    : "text-gray-500 hover:text-[#73D700] hover:bg-green-50 border-gray-200 hover:border-[#73D700]"
+                )}
                 disabled={isSearching || isLoadingCities || !fromLocation || !toLocation}
               >
                 <ArrowRightLeft className="w-4 h-4" />
               </Button>
             </div>
 
-            {/* To Location avec filtre */}
-            <CitySelector
-              label={t('to_location_label') || 'Vers'}
-              placeholder={t('to_location_placeholder') || "Tapez pour rechercher une ville d'arrivée"}
-              value={toLocation}
-              searchTerm={toSearchTerm}
-              onInputChange={handleToInputChange}
-              onCitySelect={handleToLocationSelect}
-              filteredCities={getFilteredToCities()}
-              dropdownOpen={toDropdownOpen}
-              setDropdownOpen={setToDropdownOpen}
-              disabled={isSearching || isLoadingCities}
-              inputRef={toInputRef}
-              dropdownRef={toDropdownRef}
-            />
+            {/* To Location - 2 colonnes sur 7 */}
+            <div className="lg:col-span-2">
+              <CitySelector
+                label={t('to_location_label') || 'Vers'}
+                placeholder={t('to_location_placeholder') || "Tapez pour rechercher une ville d'arrivée"}
+                value={toLocation}
+                searchTerm={toSearchTerm}
+                onInputChange={handleToInputChange}
+                onCitySelect={handleToLocationSelect}
+                filteredCities={getFilteredToCities()}
+                dropdownOpen={toDropdownOpen}
+                setDropdownOpen={setToDropdownOpen}
+                disabled={isSearching || isLoadingCities}
+                inputRef={toInputRef}
+                dropdownRef={toDropdownRef}
+              />
+            </div>
 
-            {/* Departure Date */}
-            <div className="flex-1 space-y-2">
+            {/* Departure Date - 2 colonnes sur 7 */}
+            <div className="lg:col-span-2 space-y-2">
               <label className="text-sm font-medium text-gray-700">{t('departure_date_label') || 'Date de départ'}</label>
               <Popover>
                 <PopoverTrigger asChild>
