@@ -47,6 +47,14 @@
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://adjamegare-backend.onrender.com" crossorigin />
+    <link rel="dns-prefetch" href="https://adjamegare-backend.onrender.com">
+    <!-- Hero image LCP -->
+    <link rel="preload" as="image" href="/heroImage.avif" fetchpriority="high">
+
+     <!-- Preload CSS (sera remplacé par Vite avec hash) -->
+    <link rel="preload" href="/assets/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/assets/index.css"></noscript>
     
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">

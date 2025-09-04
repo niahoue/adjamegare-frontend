@@ -279,12 +279,16 @@ const handleFromInputChange = useCallback((e) => {
 
   return (
     <section className="relative min-h-[500px] flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('/heroImage.avif')`
-        }}
-      />
+  {/* Hero image optimisée */}
+  <img
+    src="/heroImage.avif"
+    alt="Réservez vos voyages avec Adjamegare"
+    fetchpriority="high"
+    decoding="async"
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-black/10" />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
