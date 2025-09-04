@@ -38,7 +38,7 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           react: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          vendor: ['axios', 'lodash'] // ajoute ici tes grosses libs
+          vendor: ['axios', 'lodash'] 
         }
       }
     }
