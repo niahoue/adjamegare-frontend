@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- SEO Meta Tags -->
-    <title>adjamegare - Réservation de billets de bus en ligne | Transport interurbain en côte d'ivoire et en afrique de l'ouest</title>
+    <title>adjamegare - Réservation de billets de bus en ligne | Transport interurbain en Côte d'Ivoire et en Afrique de l'Ouest</title>
     <meta name="description" content="Réservez vos billets de bus en ligne avec adjamegare. Transport rapide et sécurisé vers toutes les destinations nationales et internationales. Tarifs compétitifs et réservation simple." />
     <meta name="keywords" content="réservation bus, billet bus en ligne, transport interurbain, voyage bus, bus national, bus international, adjamegare" />
     <meta name="author" content="adjamegare" />
@@ -13,36 +13,38 @@
     <meta name="language" content="French" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
     
-    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://adjamegare.com/" />
+    <meta property="og:url" content="https://www.adjamegare.com/" />
     <meta property="og:title" content="adjamegare - Réservation de billets de bus en ligne" />
     <meta property="og:description" content="Réservez vos billets de bus en ligne avec adjamegare. Transport rapide et sécurisé vers toutes les destinations." />
-    <meta property="og:image" content="https://adjamegare.com/src/assets/OG-Image.png" />
+    <meta property="og:image" content="https://www.adjamegare.com/src/assets/OG-Image.png" />
     <meta property="og:site_name" content="adjamegare" />
     <meta property="og:locale" content="fr_FR" />
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://adjamegare.com/" />
+    <meta property="twitter:url" content="https://www.adjamegare.com/" />
     <meta property="twitter:title" content="adjamegare - Réservation de billets de bus en ligne" />
     <meta property="twitter:description" content="Réservez vos billets de bus en ligne avec adjamegare. Transport rapide et sécurisé vers toutes les destinations." />
-    <meta property="twitter:image" content="https://adjamegare.com/src/assets/OG-Image.png" />
+    <meta property="twitter:image" content="https://www.adjamegare.com/src/assets/OG-Image.png" />
     
     <!-- Favicons -->
-    <link rel="icon" type="image/jpg" href="/logoAg.png" />
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <!-- Theme Color -->
     <meta name="theme-color" content="#2563eb" />
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://adjamegare.com/" />
+    <link rel="canonical" href="https://www.adjamegare.com/" />
+
+    <!-- Hreflang -->
+    <link rel="alternate" hreflang="fr" href="https://www.adjamegare.com/" />
+    <link rel="alternate" hreflang="en" href="https://www.adjamegare.com/en/" />
     
-    <!-- Preconnect to external domains for performance -->
+    <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
@@ -53,8 +55,8 @@
       "@type": "TravelAgency",
       "name": "adjamegare",
       "description": "Plateforme de réservation de billets de bus en ligne",
-      "url": "https://adjamegare.com",
-      "logo": "https://adjamegare.com/logoAg.png",
+      "url": "https://www.adjamegare.com",
+      "logo": "https://www.adjamegare.com/logoAg.png",
       "contactPoint": {
         "@type": "ContactPoint",
         "telephone": "+225-01-61-55-65-09",
@@ -74,27 +76,34 @@
       ]
     }
     </script>
-    <!-- Chargement des bibliothèques pour le QR Code et html2canvas -->
-    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="/src/styles.css" />
-    <link rel="alternate" hreflang="fr" />
+    <!-- Scripts non critiques différés -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0V8WZ2C8SC"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google tag (gtag.js) chargé après le onload -->
+    <script>
+      window.addEventListener("load", function() {
+        var s = document.createElement("script");
+        s.src="https://www.googletagmanager.com/gtag/js?id=G-0V8WZ2C8SC";
+        s.async = true;
+        document.head.appendChild(s);
+        
+        s.onload = function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-0V8WZ2C8SC');
+        };
+      });
+    </script>
 
-  gtag('config', 'G-0V8WZ2C8SC');
-</script>
-<meta name="google-site-verification" content="mN1LDl7NF0nRJ5J828Yp7Al9p0k72rlwxI7ntCvI_sk" />
+    <!-- Verification Google -->
+    <meta name="google-site-verification" content="mN1LDl7NF0nRJ5J828Yp7Al9p0k72rlwxI7ntCvI_sk" />
   </head>
   <body>
     <div id="root"></div>
+    <!-- JS principal différé -->
     <script type="module" src="/src/main.jsx" defer></script>
   </body>
 </html>
