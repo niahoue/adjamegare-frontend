@@ -346,6 +346,7 @@
   "all_cities":"Toutes les Villes",
   "arrival_time:":"Heure d'Arrivée",
   "total_duration:":"Durée Estimée ",
-  "trusted_transport_companies":"Les Compagnies Certifiées "
+  "trusted_transport_companies":"Les Compagnies Certifiées ",
+  "email_or_phone_placeholder":"email ou téléphone"
 
 }
