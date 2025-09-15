@@ -470,6 +470,7 @@ const RegisterPage = () => {
                   autoComplete="new-password"
                 />
                 <button
+                  aria-label={showPassword ? t('hide_password') : t('show_password')}
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
@@ -547,6 +548,7 @@ const RegisterPage = () => {
                   autoComplete="new-password"
                 />
                 <button
+                  aria-label={showConfirmPassword ? t('hide_password') : t('show_password')}
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}

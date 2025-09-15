@@ -340,6 +340,7 @@ const HeroSection = () => {
             {/* Swap Button - Centré et réduit l'espace */}
             <div className="lg:col-span-1 flex justify-center items-end pb-2">
               <Button
+                aria-label="Inverser les villes de départ et d'arrivée"
                 type="button"
                 variant="ghost"
                 size="sm"

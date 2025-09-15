@@ -245,6 +245,7 @@ const StationDetailPage = () => {
                 { id: 'services', label: 'Services', icon: Coffee }
               ].map(({ id, label, icon: Icon }) => (
                 <button
+                aria-label={label}
                   key={id}
                   onClick={() => setActiveTab(id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 whitespace-nowrap ${

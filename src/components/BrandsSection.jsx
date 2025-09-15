@@ -95,6 +95,7 @@ const BrandsSection = () => {
               </div>
               <p className="text-red-700 dark:text-red-300 text-sm mb-4">{error}</p>
               <button 
+               aria-label="Réessayer le chargement des compagnies"
                 onClick={fetchCompanies}
                 className="px-6 py-2 bg-[#e85805] text-white rounded-lg hover:bg-[#f46a21] transition-colors duration-200"
               >

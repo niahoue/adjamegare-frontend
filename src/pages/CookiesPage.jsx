@@ -307,6 +307,7 @@ const CookiesPage = () => {
                     <p className="text-gray-600 text-sm">Nous aident à améliorer notre site</p>
                   </div>
                   <button
+                    aria-label="Activer ou désactiver les cookies d'analyse"
                     onClick={() => handlePreferenceChange('analytics')}
                     className={`w-12 h-6 rounded-full flex items-center transition-colors ${
                       preferences.analytics ? 'bg-teal-600 justify-end' : 'bg-gray-300 justify-start'
@@ -323,6 +324,7 @@ const CookiesPage = () => {
                     <p className="text-gray-600 text-sm">Pour des publicités personnalisées</p>
                   </div>
                   <button
+                    aria-label="Activer ou désactiver les cookies marketing"
                     onClick={() => handlePreferenceChange('marketing')}
                     className={`w-12 h-6 rounded-full flex items-center transition-colors ${
                       preferences.marketing ? 'bg-teal-600 justify-end' : 'bg-gray-300 justify-start'
@@ -339,6 +341,7 @@ const CookiesPage = () => {
                     <p className="text-gray-600 text-sm">Pour une expérience personnalisée</p>
                   </div>
                   <button
+                    aria-label="Activer ou désactiver les cookies de personnalisation"
                     onClick={() => handlePreferenceChange('personalization')}
                     className={`w-12 h-6 rounded-full flex items-center transition-colors ${
                       preferences.personalization ? 'bg-indigo-600 justify-end' : 'bg-gray-300 justify-start'
@@ -352,6 +355,7 @@ const CookiesPage = () => {
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 mt-8">
                 <button
+                  aria-label="Enregistrer les préférences de cookies"
                   onClick={savePreferences}
                   className="flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
@@ -359,12 +363,14 @@ const CookiesPage = () => {
                   Enregistrer mes préférences
                 </button>
                 <button
+                  aria-label="Accepter tous les cookies"
                   onClick={acceptAll}
                   className="flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   Accepter tout
                 </button>
                 <button
+                  aria-label="Refuser tous les cookies optionnels"
                   onClick={rejectAll}
                   className="flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                 >

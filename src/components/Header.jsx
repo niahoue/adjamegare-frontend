@@ -177,18 +177,21 @@ const Header = () => {
                 {t('plan_your_trip')}
               </div>
               <button 
+              aria-label="Rechercher un voyage"
                 onClick={() => handleMobileNavigation('/search')}
                 className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
               >
                 {t('search_a_trip')}
               </button>
               <button 
+                aria-label="Voir les gares routières"
                 onClick={() => handleMobileNavigation('/bus-stations')}
                 className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
               >
                 {t('bus_stations')}
               </button>
               <button 
+                aria-label="Voir les itinéraires"
                 onClick={() => handleMobileNavigation('/routes')}
                 className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
               >
@@ -200,6 +203,7 @@ const Header = () => {
 
             {/* Other Links */}
             <button 
+              aria-label="Suivre un voyage"
               onClick={() => handleMobileNavigation('/track-travel')}
               className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
             >
@@ -207,6 +211,7 @@ const Header = () => {
             </button>
             
             <button 
+              aria-label="Accéder à la page d'aide"
               onClick={() => handleMobileNavigation('/help')}
               className="block w-full text-left text-white hover:text-green-100 py-2 px-3 rounded hover:bg-orange-600 transition-colors"
             >
@@ -222,6 +227,7 @@ const Header = () => {
                   {user?.name || user?.email || t('my_account')}
                 </div>
                 <button 
+                  aria-label="Accéder au profil ou tableau de bord"
                   onClick={() => {
                     handleAccountClick();
                     setIsMobileMenuOpen(false);
@@ -232,6 +238,7 @@ const Header = () => {
                   {user?.role === 'admin' ? t('dashboard') : t('my_profile')}
                 </button>
                 <button 
+                  aria-label="Se déconnecter"
                   onClick={() => {
                     logout();
                     setIsMobileMenuOpen(false);
@@ -244,6 +251,7 @@ const Header = () => {
               </div>
             ) : (
               <button 
+                aria-label="S'inscrire ou se connecter"
                 onClick={() => {
                   navigate('/login');
                   setIsMobileMenuOpen(false);

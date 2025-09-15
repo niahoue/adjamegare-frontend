@@ -484,6 +484,7 @@ const AdminPartnerManagementPage = () => {
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button 
+                aria-label="Annuler l'ajout du partenaire"
                 type="button" 
                 variant="outline" 
                 onClick={() => setIsAddDialogOpen(false)}
@@ -544,6 +545,7 @@ const AdminPartnerManagementPage = () => {
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button 
+                aria-label="Annuler la modification du partenaire"
                 type="button" 
                 variant="outline" 
                 onClick={() => setIsEditDialogOpen(false)}

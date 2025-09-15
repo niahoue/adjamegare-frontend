@@ -711,6 +711,7 @@ const AdminRouteManagementPage = () => {
                             <p className="text-sm mt-1">
                               Essayez de modifier votre recherche ou 
                               <button 
+                              aria-label="Clear search"
                                 onClick={() => setSearchTerm('')}
                                 className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
                               >

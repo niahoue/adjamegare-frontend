@@ -9,52 +9,53 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Informations de l'entreprise */}
           <section className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-[#F46A21] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg" aria-hidden="true">A</span>
-              </div>
-              <span className="text-xl font-bold">adjamegare</span>
-            </div>
-            <p className="text-gray-300 text-sm">
-              Votre partenaire de confiance pour tous vos voyages en bus en Côte d'Ivoire et en Afrique de l'Ouest.
-            </p>
-            <div className="flex space-x-4" role="list" aria-label="Réseaux sociaux">
-              <a 
-                href="https://www.facebook.com/adjamegare" 
-                className="text-gray-300 hover:text-[#F46A21] transition-colors" 
-                aria-label="Suivez-nous sur Facebook"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://x.com/busticket225" 
-                className="text-gray-300 hover:text-[#F46A21] transition-colors" 
-                aria-label="Suivez-nous sur Twitter"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a 
-                href="#" 
-                className="text-gray-300 hover:text-[#F46A21] transition-colors" 
-                aria-label="Suivez-nous sur Instagram"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://www.linkedin.com/company/adjamegare" 
-                className="text-gray-300 hover:text-[#F46A21] transition-colors" 
-                aria-label="Suivez-nous sur LinkedIn"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
+            <div className="flex space-x-4">
+              <ul className="flex space-x-4" role="list" aria-label="Réseaux sociaux">
+                <li>
+                  <a 
+                    href="https://www.facebook.com/adjamegare" 
+                    className="text-gray-300 hover:text-[#F46A21] transition-colors" 
+                    aria-label="Suivez-nous sur Facebook"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Facebook className="w-5 h-5" />
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://x.com/busticket225" 
+                    className="text-gray-300 hover:text-[#F46A21] transition-colors" 
+                    aria-label="Suivez-nous sur Twitter"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Twitter className="w-5 h-5" />
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#" 
+                    className="text-gray-300 hover:text-[#F46A21] transition-colors" 
+                    aria-label="Suivez-nous sur Instagram"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://www.linkedin.com/company/adjamegare" 
+                    className="text-gray-300 hover:text-[#F46A21] transition-colors" 
+                    aria-label="Suivez-nous sur LinkedIn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                </li>
+              </ul>
             </div>
           </section>
 
@@ -190,6 +191,7 @@ const Footer = () => {
                   to="/privacy-policy" 
                   className="text-gray-300 hover:text-white transition-colors"
                   aria-label="Lire la politique de confidentialité"
+                  data-discover="true"
                 >
                   Politique de confidentialité
                 </Link>
@@ -197,6 +199,7 @@ const Footer = () => {
                   to="/cookies" 
                   className="text-gray-300 hover:text-white transition-colors"
                   aria-label="En savoir plus sur les cookies"
+                  data-discover="true"
                 >
                   Cookies
                 </Link>

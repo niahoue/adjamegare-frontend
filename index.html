@@ -52,10 +52,6 @@
     <!-- Hero image LCP -->
     <link rel="preload" as="image" href="/heroImage.avif" fetchpriority="high">
 
-     <!-- Preload CSS (sera remplacé par Vite avec hash) -->
-    <link rel="preload" href="./src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="./src/index.css"></noscript>
-    
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
@@ -87,12 +83,11 @@
 
     <!-- Scripts non critiques différés -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 
     <!-- Google tag (gtag.js) chargé après le onload -->
     <script>
       window.addEventListener("load", function() {
-        var s = document.createElement("script");
+        let s = document.createElement("script");
         s.src="https://www.googletagmanager.com/gtag/js?id=G-0V8WZ2C8SC";
         s.async = true;
         document.head.appendChild(s);
