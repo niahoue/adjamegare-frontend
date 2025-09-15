@@ -21,11 +21,18 @@ const api = axios.create({
 
 // OPTIMISATION 2: Cache local simple pour les données statiques
 const localCache = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+// TTL aligné sur le cache Redis backend :
+const CACHE_TTL = {
+  routes: 15 * 60 * 1000,      // 15 min pour les routes
+  cities: 30 * 60 * 1000,      // 30 min pour les villes
+  companies: 30 * 60 * 1000,   // 30 min pour les compagnies
+  default: 5 * 60 * 1000       // fallback 5 min
+};
 
-const getCachedData = (key) => {
+const getCachedData = (key, type = 'default') => {
   const cached = localCache.get(key);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+  const ttl = CACHE_TTL[type] || CACHE_TTL.default;
+  if (cached && Date.now() - cached.timestamp < ttl) {
     console.log(`📱 Cache local hit: ${key}`);
     return cached.data;
   }
@@ -171,13 +178,17 @@ export const authApi = {
 // OPTIMISATION 5: Fonctions voyage avec cache local et retry
 export const travelApi = {
   // Requêtes avec retry automatique pour les endpoints critiques
-  searchRoutes: (params) => retryRequest(() => api.get('/travel/routes/search', { params })),
-  
-  getAllRoutes: () => {
+  searchRoutes: (params) => {
+    // Pas de cache local pour la recherche, toujours frais (cache côté backend)
+    return retryRequest(() => api.get('/travel/routes/search', { params }));
+  },
+
+  getAllRoutes: ({ forceRefresh = false } = {}) => {
     const cacheKey = 'all-routes';
-    const cached = getCachedData(cacheKey);
-    if (cached) return Promise.resolve(cached);
-    
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey, 'routes');
+      if (cached) return Promise.resolve(cached);
+    }
     return retryRequest(() => api.get('/travel/routes/all'))
       .then(response => {
         setCachedData(cacheKey, response);
@@ -186,11 +197,12 @@ export const travelApi = {
   },
 
   // Endpoints avec cache local pour données statiques
-  getDepartureCities: () => {
+  getDepartureCities: ({ forceRefresh = false } = {}) => {
     const cacheKey = 'departure-cities';
-    const cached = getCachedData(cacheKey);
-    if (cached) return Promise.resolve(cached);
-    
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey, 'cities');
+      if (cached) return Promise.resolve(cached);
+    }
     return retryRequest(() => api.get('/travel/cities/departure'))
       .then(response => {
         setCachedData(cacheKey, response);
@@ -198,11 +210,12 @@ export const travelApi = {
       });
   },
 
-  getArrivalCities: () => {
+  getArrivalCities: ({ forceRefresh = false } = {}) => {
     const cacheKey = 'arrival-cities';
-    const cached = getCachedData(cacheKey);
-    if (cached) return Promise.resolve(cached);
-    
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey, 'cities');
+      if (cached) return Promise.resolve(cached);
+    }
     return retryRequest(() => api.get('/travel/cities/arrival'))
       .then(response => {
         setCachedData(cacheKey, response);
@@ -210,11 +223,12 @@ export const travelApi = {
       });
   },
 
-  getAllCities: () => {
+  getAllCities: ({ forceRefresh = false } = {}) => {
     const cacheKey = 'all-cities';
-    const cached = getCachedData(cacheKey);
-    if (cached) return Promise.resolve(cached);
-    
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey, 'cities');
+      if (cached) return Promise.resolve(cached);
+    }
     return retryRequest(() => api.get('/travel/cities/all'))
       .then(response => {
         setCachedData(cacheKey, response);
@@ -222,11 +236,12 @@ export const travelApi = {
       });
   },
 
-  getCompanies: () => {
+  getCompanies: ({ forceRefresh = false } = {}) => {
     const cacheKey = 'companies';
-    const cached = getCachedData(cacheKey);
-    if (cached) return Promise.resolve(cached);
-    
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey, 'companies');
+      if (cached) return Promise.resolve(cached);
+    }
     return retryRequest(() => api.get('/travel/companies'))
       .then(response => {
         setCachedData(cacheKey, response);
@@ -234,11 +249,12 @@ export const travelApi = {
       });
   },
 
-  getSuggestedRoutes: () => {
+  getSuggestedRoutes: ({ forceRefresh = false } = {}) => {
     const cacheKey = 'suggested-routes';
-    const cached = getCachedData(cacheKey);
-    if (cached) return Promise.resolve(cached);
-    
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey, 'routes');
+      if (cached) return Promise.resolve(cached);
+    }
     return retryRequest(() => api.get('/travel/routes/suggested'))
       .then(response => {
         setCachedData(cacheKey, response);
@@ -246,11 +262,12 @@ export const travelApi = {
       });
   },
 
-  getPopularRoutes: () => {
+  getPopularRoutes: ({ forceRefresh = false } = {}) => {
     const cacheKey = 'popular-routes';
-    const cached = getCachedData(cacheKey);
-    if (cached) return Promise.resolve(cached);
-    
+    if (!forceRefresh) {
+      const cached = getCachedData(cacheKey, 'routes');
+      if (cached) return Promise.resolve(cached);
+    }
     return retryRequest(() => api.get('/travel/routes/popular'))
       .then(response => {
         setCachedData(cacheKey, response);

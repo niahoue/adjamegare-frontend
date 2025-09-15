@@ -15,7 +15,7 @@ import { fr } from 'date-fns/locale'
 import { cn } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import api from '../services/apiService';
+import useTravelData from '../hooks/useTravelData'; // Import du hook optimisé
 
 const HeroSection = () => {
   const [tripType, setTripType] = useState('oneWay');
@@ -32,13 +32,17 @@ const HeroSection = () => {
   const [toSearchTerm, setToSearchTerm] = useState('');
   const [fromDropdownOpen, setFromDropdownOpen] = useState(false);
   const [toDropdownOpen, setToDropdownOpen] = useState(false);
-
   const [isSearching, setIsSearching] = useState(false);
-  const [cities, setCities] = useState([]);
-  const [isLoadingCities, setIsLoadingCities] = useState(true);
 
-  const [companies, setCompanies] = useState([]);
-  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+  // Utilisation du hook optimisé avec cache
+  const { 
+    cities, 
+    companies, 
+    loading: dataLoading, 
+    error: dataError,
+    isReady,
+    refreshData
+  } = useTravelData();
 
   const fromInputRef = useRef(null);
   const toInputRef = useRef(null);
@@ -48,56 +52,17 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // Charger la liste des villes au montage
+  // Initialiser les valeurs par défaut une fois les données chargées
   useEffect(() => {
-    const loadCities = async () => {
-      try {
-        setIsLoadingCities(true);
-        const response = await api.travel.getAllCities();
-        if (response.data.success && response.data.data) {
-          setCities(response.data.data);
-          if (response.data.data.includes('Abidjan')) {
-            setFromLocation('Abidjan');
-          }
-          if (response.data.data.includes('Yamoussoukro')) {
-            setToLocation('Yamoussoukro');
-          }
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement des villes:', error);
-        const fallbackCities = ['Abidjan', 'Yamoussoukro', 'Bouaké', 'San-Pédro', 'Daloa', 'Korhogo', 'Man', 'Gagnoa'];
-        setCities(fallbackCities);
+    if (cities.length > 0 && !fromLocation && !toLocation) {
+      if (cities.includes('Abidjan')) {
         setFromLocation('Abidjan');
+      }
+      if (cities.includes('Yamoussoukro')) {
         setToLocation('Yamoussoukro');
-      } finally {
-        setIsLoadingCities(false);
       }
-    };
-    loadCities();
-  }, []);
-
-  // Charger la liste des compagnies au montage
-  useEffect(() => {
-    const loadCompanies = async () => {
-      try {
-        setIsLoadingCompanies(true);
-        const response = await api.travel.getCompanies();
-        if (response.data.success && response.data.data) {
-          const companyNames = response.data.data.map(c => {
-            if (typeof c === 'string') return c;
-            return c.name || c;
-          });
-          setCompanies(companyNames);
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des compagnies:", error);
-        setCompanies(['SOTRA', 'UTB', 'CTA', 'TCV', 'Groupe RTI', 'Bus Ivoire']);
-      } finally {
-        setIsLoadingCompanies(false);
-      }
-    };
-    loadCompanies();
-  }, []);
+    }
+  }, [cities, fromLocation, toLocation]);
 
   // Gestion des clics en dehors pour fermer les dropdowns
   useEffect(() => {
@@ -157,7 +122,7 @@ const HeroSection = () => {
     }
   }, [fromLocation]);
 
-const handleFromInputChange = useCallback((e) => {
+  const handleFromInputChange = useCallback((e) => {
     const value = e.target.value;
     setFromSearchTerm(value);
     setFromDropdownOpen(true);
@@ -217,7 +182,14 @@ const handleFromInputChange = useCallback((e) => {
     return times;
   };
 
-  const isSearchDisabled = isSearching || !fromLocation || !toLocation || isLoadingCities;
+  // États de chargement et validation
+  const isDataLoading = dataLoading || !isReady;
+  const isSearchDisabled = isSearching || !fromLocation || !toLocation || isDataLoading;
+
+  // Gestionnaire de retry en cas d'erreur
+  const handleRetry = useCallback(() => {
+    refreshData();
+  }, [refreshData]);
 
   // Composant de sélection de ville avec filtre personnalisé
   const CitySelector = ({ 
@@ -244,7 +216,7 @@ const handleFromInputChange = useCallback((e) => {
           placeholder={disabled ? 'Chargement...' : placeholder}
           value={value || searchTerm}
           onChange={onInputChange}
-          onFocus={() => setDropdownOpen(true)}
+          onFocus={() => !disabled && setDropdownOpen(true)}
           disabled={disabled}
           className="h-12 w-full pl-10 pr-10 border border-gray-300 rounded-md focus:border-[#73D700] focus:ring-1 focus:ring-[#73D700] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         />
@@ -277,18 +249,36 @@ const handleFromInputChange = useCallback((e) => {
     </div>
   );
 
+  // Composant d'erreur avec retry
+  const ErrorMessage = () => (
+    <div className="text-center p-4 bg-red-50 border border-red-200 rounded-md mb-4">
+      <p className="text-red-600 mb-2">
+        {dataError || 'Erreur lors du chargement des données'}
+      </p>
+      <Button
+        onClick={handleRetry}
+        variant="outline"
+        size="sm"
+        className="text-red-600 border-red-200 hover:bg-red-50"
+      >
+        Réessayer
+      </Button>
+    </div>
+  );
+
   return (
     <section className="relative min-h-[500px] flex items-center justify-center">
-  {/* Hero image optimisée */}
-  <img
-    src="/heroImage.avif"
-    alt="Réservez vos voyages avec Adjamegare"
-    fetchpriority="high"
-    decoding="async"
-    className="absolute inset-0 w-full h-full object-cover"
-  />
-  {/* Overlay */}
-  <div className="absolute inset-0 bg-black/10" />
+      {/* Hero image optimisée */}
+      <img
+        src="/heroImage.avif"
+        sizes="100vw"
+        alt="Réservez vos voyages avec Adjamegare"
+        fetchpriority="high"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover aspect-[16/9]" 
+      />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/10" />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
@@ -298,6 +288,9 @@ const handleFromInputChange = useCallback((e) => {
         </div>
 
         <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-2xl p-6 md:p-8 mb-4">
+          {/* Affichage d'erreur si nécessaire */}
+          {dataError && <ErrorMessage />}
+
           {/* Types de trajet */}
           <div className="flex items-center space-x-6 mb-6">
             <label className="flex items-center space-x-2 cursor-pointer">
@@ -338,7 +331,7 @@ const handleFromInputChange = useCallback((e) => {
                 filteredCities={getFilteredFromCities()}
                 dropdownOpen={fromDropdownOpen}
                 setDropdownOpen={setFromDropdownOpen}
-                disabled={isSearching || isLoadingCities}
+                disabled={isDataLoading}
                 inputRef={fromInputRef}
                 dropdownRef={fromDropdownRef}
               />
@@ -357,7 +350,7 @@ const handleFromInputChange = useCallback((e) => {
                     ? "text-[#73D700] hover:text-[#5CB800] bg-green-50 hover:bg-green-100 border-[#73D700] hover:border-[#5CB800]"
                     : "text-gray-500 hover:text-[#73D700] hover:bg-green-50 border-gray-200 hover:border-[#73D700]"
                 )}
-                disabled={isSearching || isLoadingCities || !fromLocation || !toLocation}
+                disabled={isDataLoading || !fromLocation || !toLocation}
               >
                 <ArrowRightLeft className="w-4 h-4" />
               </Button>
@@ -375,7 +368,7 @@ const handleFromInputChange = useCallback((e) => {
                 filteredCities={getFilteredToCities()}
                 dropdownOpen={toDropdownOpen}
                 setDropdownOpen={setToDropdownOpen}
-                disabled={isSearching || isLoadingCities}
+                disabled={isDataLoading}
                 inputRef={toInputRef}
                 dropdownRef={toDropdownRef}
               />
@@ -474,10 +467,10 @@ const handleFromInputChange = useCallback((e) => {
                 <Select 
                   value={companyName} 
                   onValueChange={setCompanyName} 
-                  disabled={isSearching || isLoadingCompanies}
+                  disabled={isSearching || isDataLoading}
                 >
                   <SelectTrigger className="h-12 w-full pl-10 border-gray-300 focus:border-[#73D700] focus:ring-[#73D700]">
-                    <SelectValue placeholder={isLoadingCompanies ? 'Chargement...' : (t('company_name_placeholder') || 'Toutes les compagnies')} />
+                    <SelectValue placeholder={isDataLoading ? 'Chargement...' : (t('company_name_placeholder') || 'Toutes les compagnies')} />
                   </SelectTrigger>
                   <SelectContent className="bg-white max-h-48">
                     <SelectItem value="all">{t('all_companies') || 'Toutes les compagnies'}</SelectItem>
@@ -519,7 +512,7 @@ const handleFromInputChange = useCallback((e) => {
               disabled={isSearchDisabled}
               className="bg-[#73D700] hover:bg-[#5CB800] text-white px-12 py-3 text-lg font-semibold rounded-md shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none min-w-[200px]"
             >
-              {isLoadingCities 
+              {isDataLoading 
                 ? 'Chargement...' 
                 : isSearching 
                   ? (t('searching') || 'Recherche...') 
@@ -529,7 +522,7 @@ const handleFromInputChange = useCallback((e) => {
           </div>
 
           {/* Message d'aide si les deux villes ne sont pas sélectionnées */}
-          {(!fromLocation || !toLocation) && !isLoadingCities && (
+          {(!fromLocation || !toLocation) && !isDataLoading && (
             <div className="text-center mt-4">
               <p className="text-sm text-gray-500">
                 {!fromLocation && !toLocation 
@@ -539,6 +532,15 @@ const handleFromInputChange = useCallback((e) => {
                     : 'Veuillez sélectionner une ville d\'arrivée'
                 }
               </p>
+            </div>
+          )}
+
+          {/* Indicateur de statut des données (optionnel, pour debug) */}
+          {import.meta.env.NODE_ENV === 'development' && (
+            <div className="mt-4 text-xs text-gray-400 text-center">
+              Villes: {cities.length} | Compagnies: {companies.length} | 
+              Cache: {isReady ? 'Actif' : 'En cours'} | 
+              {dataError && 'Erreur détectée'}
             </div>
           )}
         </div>

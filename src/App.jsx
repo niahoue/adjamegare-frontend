@@ -31,7 +31,7 @@ import AdminCityManagementPage from './pages/admin/AdminCityManagementPage';
 import AdminPartnerManagementPage from './pages/admin/AdminPartnerManagementPage'
 import { Toaster } from './components/ui/toaster';
 import { AuthProvider } from './context/AuthContext';
-
+import AppInitializer from './appInitializer'
 // Importez la configuration i18n et I18nextProvider
 import './i18n'; // Assurez-vous que le fichier i18n.js est importé pour l'initialisation
 import { I18nextProvider } from 'react-i18next';
@@ -43,6 +43,7 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
+        <AppInitializer>
         <I18nextProvider i18n={i18n}> 
           <AuthProvider>
             <Routes>
@@ -83,6 +84,7 @@ function App() {
             <Toaster />
           </AuthProvider>
         </I18nextProvider>
+        </AppInitializer>
       </BrowserRouter>
     </div>
   );
