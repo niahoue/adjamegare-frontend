@@ -288,7 +288,7 @@ const WhereToNextSection = () => {
                             route.featured || route.isPopular ? 'bg-[#73D700]' : 'bg-gray-400'
                           }`}></div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-gray-900 truncate">{route.name}</h4>
+                            <h3 className="font-semibold text-gray-900 truncate">{route.name}</h3>
                             <p className="text-sm text-gray-600 truncate">{route.route}</p>
                             {route.price && (
                               <p className="text-sm font-medium text-[#73D700]">{route.price} F CFA</p>

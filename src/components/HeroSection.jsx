@@ -267,286 +267,288 @@ const HeroSection = () => {
   );
 
   return (
-    <section className="relative min-h-[500px] flex items-center justify-center">
-      {/* Hero image optimisée */}
-      <img
-        src="/heroImage.avif"
-        sizes="100vw"
-        alt="Réservez vos voyages avec Adjamegare"
-        fetchpriority="high"
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover aspect-[16/9]" 
-      />
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/10" />
+<section className="relative min-h-[500px] flex items-center justify-center">
+  {/* Hero image optimisée */}
+  <img
+    src="/heroImage.avif"
+    sizes="100vw"
+    alt="Réservez vos voyages avec Adjamegare"
+    fetchpriority="high"
+    decoding="async"
+    className="absolute inset-0 w-full h-full object-cover aspect-[16/9]"
+  />
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-black/10" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-            {t('hero_title') || 'Réservez votre voyage facilement'}
-          </h1>
+  <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="text-center mb-8">
+      <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+        {t('hero_title') || 'Réservez votre voyage facilement'}
+      </h1>
+    </div>
+
+    <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-2xl p-6 md:p-8 mb-4">
+      {/* Affichage d'erreur si nécessaire */}
+      {dataError && <ErrorMessage />}
+
+      {/* Types de trajet */}
+      <div className="flex items-center space-x-6 mb-6">
+        <label className="flex items-center space-x-2 cursor-pointer">
+          <input
+            type="radio"
+            name="tripType"
+            value="oneWay"
+            checked={tripType === 'oneWay'}
+            onChange={(e) => setTripType(e.target.value)}
+            className="w-4 h-4 text-[#73D700] border-gray-300 focus:ring-[#73D700]"
+          />
+          <span className="text-gray-700 font-medium">{t('one_way') || 'Aller simple'}</span>
+        </label>
+        <label className="flex items-center space-x-2 cursor-pointer">
+          <input
+            type="radio"
+            name="tripType"
+            value="roundTrip"
+            checked={tripType === 'roundTrip'}
+            onChange={(e) => setTripType(e.target.value)}
+            className="w-4 h-4 text-[#73D700] border-gray-300 focus:ring-[#73D700]"
+          />
+          <span className="text-gray-700 font-medium">{t('round_trip') || 'Aller-retour'}</span>
+        </label>
+      </div>
+
+      {/* Première ligne : De, Vers et Date de départ - Grid layout pour un espacement équitable */}
+      <div className="grid grid-cols-1 lg:grid-cols-7 gap-4 items-end mb-4">
+        {/* From Location - 2 colonnes sur 7 */}
+        <div className="lg:col-span-2">
+          <CitySelector
+            label={t('from_location_label') || 'De'}
+            placeholder={t('from_location_placeholder') || 'Tapez pour rechercher une ville de départ'}
+            value={fromLocation}
+            searchTerm={fromSearchTerm}
+            onInputChange={handleFromInputChange}
+            onCitySelect={handleFromLocationSelect}
+            filteredCities={getFilteredFromCities()}
+            dropdownOpen={fromDropdownOpen}
+            setDropdownOpen={setFromDropdownOpen}
+            disabled={isDataLoading}
+            inputRef={fromInputRef}
+            dropdownRef={fromDropdownRef}
+          />
         </div>
 
-        <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-2xl p-6 md:p-8 mb-4">
-          {/* Affichage d'erreur si nécessaire */}
-          {dataError && <ErrorMessage />}
+        {/* Swap Button - Centré et réduit l'espace */}
+        <div className="lg:col-span-1 flex justify-center items-end pb-2">
+          <Button
+            aria-label="Inverser les villes de départ et d'arrivée"
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleSwapLocations}
+            className={cn(
+              "p-2 rounded-full transition-all duration-200 border mx-auto",
+              tripType === 'roundTrip'
+                ? "text-[#73D700] hover:text-[#5CB800] bg-green-50 hover:bg-green-100 border-[#73D700] hover:border-[#5CB800]"
+                : "text-gray-500 hover:text-[#73D700] hover:bg-green-50 border-gray-200 hover:border-[#73D700]"
+            )}
+            disabled={isDataLoading || !fromLocation || !toLocation}
+          >
+            <ArrowRightLeft className="w-4 h-4" />
+          </Button>
+        </div>
 
-          {/* Types de trajet */}
-          <div className="flex items-center space-x-6 mb-6">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="tripType"
-                value="oneWay"
-                checked={tripType === 'oneWay'}
-                onChange={(e) => setTripType(e.target.value)}
-                className="w-4 h-4 text-[#73D700] border-gray-300 focus:ring-[#73D700]"
-              />
-              <span className="text-gray-700 font-medium">{t('one_way') || 'Aller simple'}</span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="tripType"
-                value="roundTrip"
-                checked={tripType === 'roundTrip'}
-                onChange={(e) => setTripType(e.target.value)}
-                className="w-4 h-4 text-[#73D700] border-gray-300 focus:ring-[#73D700]"
-              />
-              <span className="text-gray-700 font-medium">{t('round_trip') || 'Aller-retour'}</span>
-            </label>
-          </div>
+        {/* To Location - 2 colonnes sur 7 */}
+        <div className="lg:col-span-2">
+          <CitySelector
+            label={t('to_location_label') || 'Vers'}
+            placeholder={t('to_location_placeholder') || "Tapez pour rechercher une ville d'arrivée"}
+            value={toLocation}
+            searchTerm={toSearchTerm}
+            onInputChange={handleToInputChange}
+            onCitySelect={handleToLocationSelect}
+            filteredCities={getFilteredToCities()}
+            dropdownOpen={toDropdownOpen}
+            setDropdownOpen={setToDropdownOpen}
+            disabled={isDataLoading}
+            inputRef={toInputRef}
+            dropdownRef={toDropdownRef}
+          />
+        </div>
 
-          {/* Première ligne : De, Vers et Date de départ - Grid layout pour un espacement équitable */}
-          <div className="grid grid-cols-1 lg:grid-cols-7 gap-4 items-end mb-4">
-            {/* From Location - 2 colonnes sur 7 */}
-            <div className="lg:col-span-2">
-              <CitySelector
-                label={t('from_location_label') || 'De'}
-                placeholder={t('from_location_placeholder') || 'Tapez pour rechercher une ville de départ'}
-                value={fromLocation}
-                searchTerm={fromSearchTerm}
-                onInputChange={handleFromInputChange}
-                onCitySelect={handleFromLocationSelect}
-                filteredCities={getFilteredFromCities()}
-                dropdownOpen={fromDropdownOpen}
-                setDropdownOpen={setFromDropdownOpen}
-                disabled={isDataLoading}
-                inputRef={fromInputRef}
-                dropdownRef={fromDropdownRef}
-              />
-            </div>
-
-            {/* Swap Button - Centré et réduit l'espace */}
-            <div className="lg:col-span-1 flex justify-center items-end pb-2">
+        {/* Departure Date - 2 colonnes sur 7 */}
+        <div className="lg:col-span-2 space-y-2">
+          <label className="text-sm font-medium text-gray-700">{t('departure_date_label') || 'Date de départ'}</label>
+          <Popover>
+            <PopoverTrigger asChild>
               <Button
-                aria-label="Inverser les villes de départ et d'arrivée"
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleSwapLocations}
+                aria-label="Sélectionner une date de départ"
+                variant="outline"
                 className={cn(
-                  "p-2 rounded-full transition-all duration-200 border mx-auto",
-                  tripType === 'roundTrip'
-                    ? "text-[#73D700] hover:text-[#5CB800] bg-green-50 hover:bg-green-100 border-[#73D700] hover:border-[#5CB800]"
-                    : "text-gray-500 hover:text-[#73D700] hover:bg-green-50 border-gray-200 hover:border-[#73D700]"
+                  "h-12 w-full justify-start text-left font-normal border-gray-300 hover:border-[#73D700]",
+                  !departureDate && "text-muted-foreground"
                 )}
-                disabled={isDataLoading || !fromLocation || !toLocation}
+                disabled={isSearching}
               >
-                <ArrowRightLeft className="w-4 h-4" />
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {departureDate ? format(departureDate, "dd/MM/yyyy", { locale: fr }) : <span>{t('choose_date') || 'Choisir une date'}</span>}
               </Button>
-            </div>
-
-            {/* To Location - 2 colonnes sur 7 */}
-            <div className="lg:col-span-2">
-              <CitySelector
-                label={t('to_location_label') || 'Vers'}
-                placeholder={t('to_location_placeholder') || "Tapez pour rechercher une ville d'arrivée"}
-                value={toLocation}
-                searchTerm={toSearchTerm}
-                onInputChange={handleToInputChange}
-                onCitySelect={handleToLocationSelect}
-                filteredCities={getFilteredToCities()}
-                dropdownOpen={toDropdownOpen}
-                setDropdownOpen={setToDropdownOpen}
-                disabled={isDataLoading}
-                inputRef={toInputRef}
-                dropdownRef={toDropdownRef}
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-white shadow-lg rounded-md border z-50" align="start">
+              <Calendar
+                mode="single"
+                selected={departureDate}
+                onSelect={setDepartureDate}
+                initialFocus
+                locale={fr}
+                fromDate={new Date()}
               />
-            </div>
-
-            {/* Departure Date - 2 colonnes sur 7 */}
-            <div className="lg:col-span-2 space-y-2">
-              <label className="text-sm font-medium text-gray-700">{t('departure_date_label') || 'Date de départ'}</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "h-12 w-full justify-start text-left font-normal border-gray-300 hover:border-[#73D700]",
-                      !departureDate && "text-muted-foreground"
-                    )}
-                    disabled={isSearching}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {departureDate ? format(departureDate, "dd/MM/yyyy", { locale: fr }) : <span>{t('choose_date') || 'Choisir une date'}</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white shadow-lg rounded-md border z-50" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={departureDate}
-                    onSelect={setDepartureDate}
-                    initialFocus
-                    locale={fr}
-                    fromDate={new Date()}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          {/* Deuxième ligne : Date de retour (uniquement pour aller-retour) */}
-          {tripType === 'roundTrip' && (
-            <div className="mb-4">
-              <div className="max-w-sm">
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t('return_date_label') || 'Date de retour'}</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "h-12 w-full justify-start text-left font-normal border-gray-300 hover:border-[#73D700]",
-                        !returnDate && "text-muted-foreground"
-                      )}
-                      disabled={isSearching}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {returnDate ? format(returnDate, "dd/MM/yyyy", { locale: fr }) : <span>{t('choose_date') || 'Choisir une date'}</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-white shadow-lg rounded-md border z-50" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={returnDate}
-                      onSelect={setReturnDate}
-                      initialFocus
-                      locale={fr}
-                      fromDate={departureDate || new Date()}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-          )}
-
-          {/* Ligne 3 : heure, compagnie, passagers */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-6">
-            {/* Heure */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">{t('departure_time_label') || 'Heure'}</label>
-              <div className="relative">
-                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
-                <Select value={departureTime} onValueChange={setDepartureTime} disabled={isSearching}>
-                  <SelectTrigger className="h-12 w-full pl-10 border-gray-300 focus:border-[#73D700] focus:ring-[#73D700]">
-                    <SelectValue placeholder={t('select_departure_time') || 'Sélectionner'} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white max-h-48">
-                    {generateTimeOptions().map(time => (
-                      <SelectItem key={time} value={time}>{time}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Compagnie */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">{t('company_name_label') || 'Compagnie'}</label>
-              <div className="relative">
-                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Select 
-                  value={companyName} 
-                  onValueChange={setCompanyName} 
-                  disabled={isSearching || isDataLoading}
-                >
-                  <SelectTrigger className="h-12 w-full pl-10 border-gray-300 focus:border-[#73D700] focus:ring-[#73D700]">
-                    <SelectValue placeholder={isDataLoading ? 'Chargement...' : (t('company_name_placeholder') || 'Toutes les compagnies')} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white max-h-48">
-                    <SelectItem value="all">{t('all_companies') || 'Toutes les compagnies'}</SelectItem>
-                    {companies.map(company => (
-                      <SelectItem key={company} value={company}>{company}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Passagers */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">{t('passengers_label') || 'Passagers'}</label>
-              <div className="relative">
-                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
-                <Select value={passengers} onValueChange={setPassengers} disabled={isSearching}>
-                  <SelectTrigger className="h-12 w-full pl-10 border-gray-300 focus:border-[#73D700] focus:ring-[#73D700]">
-                    <SelectValue placeholder={t('select_passengers_placeholder') || 'Sélectionner'} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="1 Adult">{t('1_adult') || '1 Adulte'}</SelectItem>
-                    <SelectItem value="2 Adults">{t('2_adults') || '2 Adultes'}</SelectItem>
-                    <SelectItem value="3 Adults">{t('3_adults') || '3 Adultes'}</SelectItem>
-                    <SelectItem value="4 Adults">{t('4_adults') || '4 Adultes'}</SelectItem>
-                    <SelectItem value="1 Adult, 1 Child">{t('1_adult_1_child') || '1 Adulte, 1 Enfant'}</SelectItem>
-                    <SelectItem value="2 Adults, 1 Child">{t('2_adults_1_child') || '2 Adultes, 1 Enfant'}</SelectItem>
-                    <SelectItem value="2 Adults, 2 Children">{t('2_adults_2_children') || '2 Adultes, 2 Enfants'}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-
-          {/* Bouton recherche */}
-          <div className="flex justify-center lg:justify-end">
-            <Button
-              onClick={handleSearch}
-              disabled={isSearchDisabled}
-              className="bg-[#73D700] hover:bg-[#5CB800] text-white px-12 py-3 text-lg font-semibold rounded-md shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none min-w-[200px]"
-            >
-              {isDataLoading 
-                ? 'Chargement...' 
-                : isSearching 
-                  ? (t('searching') || 'Recherche...') 
-                  : (t('search') || 'Rechercher')
-              }
-            </Button>
-          </div>
-
-          {/* Message d'aide si les deux villes ne sont pas sélectionnées */}
-          {(!fromLocation || !toLocation) && !isDataLoading && (
-            <div className="text-center mt-4">
-              <p className="text-sm text-gray-500">
-                {!fromLocation && !toLocation 
-                  ? 'Veuillez sélectionner une ville de départ et une ville d\'arrivée'
-                  : !fromLocation 
-                    ? 'Veuillez sélectionner une ville de départ'
-                    : 'Veuillez sélectionner une ville d\'arrivée'
-                }
-              </p>
-            </div>
-          )}
-
-          {/* Indicateur de statut des données (optionnel, pour debug) */}
-          {import.meta.env.NODE_ENV === 'development' && (
-            <div className="mt-4 text-xs text-gray-400 text-center">
-              Villes: {cities.length} | Compagnies: {companies.length} | 
-              Cache: {isReady ? 'Actif' : 'En cours'} | 
-              {dataError && 'Erreur détectée'}
-            </div>
-          )}
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
-    </section>
+
+      {/* Deuxième ligne : Date de retour (uniquement pour aller-retour) */}
+      {tripType === 'roundTrip' && (
+        <div className="mb-4">
+          <div className="max-w-sm">
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('return_date_label') || 'Date de retour'}</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  aria-label="Sélectionner une date de retour"
+                  variant="outline"
+                  className={cn(
+                    "h-12 w-full justify-start text-left font-normal border-gray-300 hover:border-[#73D700]",
+                    !returnDate && "text-muted-foreground"
+                  )}
+                  disabled={isSearching}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {returnDate ? format(returnDate, "dd/MM/yyyy", { locale: fr }) : <span>{t('choose_date') || 'Choisir une date'}</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-white shadow-lg rounded-md border z-50" align="start">
+                <Calendar
+                  mode="single"
+                  selected={returnDate}
+                  onSelect={setReturnDate}
+                  initialFocus
+                  locale={fr}
+                  fromDate={departureDate || new Date()}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+      )}
+
+      {/* Ligne 3 : heure, compagnie, passagers */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-6">
+        {/* Heure */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">{t('departure_time_label') || 'Heure'}</label>
+          <div className="relative">
+            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
+            <Select value={departureTime} onValueChange={setDepartureTime} disabled={isSearching}>
+              <SelectTrigger aria-label="Sélectionner l'heure de départ" className="h-12 w-full pl-10 border-gray-300 focus:border-[#73D700] focus:ring-[#73D700]">
+                <SelectValue placeholder={t('select_departure_time') || 'Sélectionner'} />
+              </SelectTrigger>
+              <SelectContent className="bg-white max-h-48">
+                {generateTimeOptions().map(time => (
+                  <SelectItem key={time} value={time}>{time}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Compagnie */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">{t('company_name_label') || 'Compagnie'}</label>
+          <div className="relative">
+            <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Select
+              value={companyName}
+              onValueChange={setCompanyName}
+              disabled={isSearching || isDataLoading}
+            >
+              <SelectTrigger aria-label="Sélectionner la compagnie" className="h-12 w-full pl-10 border-gray-300 focus:border-[#73D700] focus:ring-[#73D700]">
+                <SelectValue placeholder={isDataLoading ? 'Chargement...' : (t('company_name_placeholder') || 'Toutes les compagnies')} />
+              </SelectTrigger>
+              <SelectContent className="bg-white max-h-48">
+                <SelectItem value="all">{t('all_companies') || 'Toutes les compagnies'}</SelectItem>
+                {companies.map(company => (
+                  <SelectItem key={company} value={company}>{company}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Passagers */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">{t('passengers_label') || 'Passagers'}</label>
+          <div className="relative">
+            <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
+            <Select value={passengers} onValueChange={setPassengers} disabled={isSearching}>
+              <SelectTrigger aria-label="Sélectionner le nombre de passagers" className="h-12 w-full pl-10 border-gray-300 focus:border-[#73D700] focus:ring-[#73D700]">
+                <SelectValue placeholder={t('select_passengers_placeholder') || 'Sélectionner'} />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <SelectItem value="1 Adult">{t('1_adult') || '1 Adulte'}</SelectItem>
+                <SelectItem value="2 Adults">{t('2_adults') || '2 Adultes'}</SelectItem>
+                <SelectItem value="3 Adults">{t('3_adults') || '3 Adultes'}</SelectItem>
+                <SelectItem value="4 Adults">{t('4_adults') || '4 Adultes'}</SelectItem>
+                <SelectItem value="1 Adult, 1 Child">{t('1_adult_1_child') || '1 Adulte, 1 Enfant'}</SelectItem>
+                <SelectItem value="2 Adults, 1 Child">{t('2_adults_1_child') || '2 Adultes, 1 Enfant'}</SelectItem>
+                <SelectItem value="2 Adults, 2 Children">{t('2_adults_2_children') || '2 Adultes, 2 Enfants'}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Bouton recherche */}
+      <div className="flex justify-center lg:justify-end">
+        <Button
+          onClick={handleSearch}
+          disabled={isSearchDisabled}
+          className="bg-[#73D700] hover:bg-[#5CB800] text-white px-12 py-3 text-lg font-semibold rounded-md shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none min-w-[200px]"
+        >
+          {isDataLoading
+            ? 'Chargement...'
+            : isSearching
+              ? (t('searching') || 'Recherche...')
+              : (t('search') || 'Rechercher')
+          }
+        </Button>
+      </div>
+
+      {/* Message d'aide si les deux villes ne sont pas sélectionnées */}
+      {(!fromLocation || !toLocation) && !isDataLoading && (
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-500">
+            {!fromLocation && !toLocation
+              ? 'Veuillez sélectionner une ville de départ et une ville d\'arrivée'
+              : !fromLocation
+                ? 'Veuillez sélectionner une ville de départ'
+                : 'Veuillez sélectionner une ville d\'arrivée'
+            }
+          </p>
+        </div>
+      )}
+
+      {/* Indicateur de statut des données (optionnel, pour debug) */}
+      {import.meta.env.NODE_ENV === 'development' && (
+        <div className="mt-4 text-xs text-gray-400 text-center">
+          Villes: {cities.length} | Compagnies: {companies.length} |
+          Cache: {isReady ? 'Actif' : 'En cours'} |
+          {dataError && 'Erreur détectée'}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
   );
 };
 

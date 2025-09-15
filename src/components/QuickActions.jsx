@@ -30,6 +30,7 @@ const QuickActions = () => {
   return (
     <section className="py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center ">Actions rapides</h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {actions.map((action, index) => (
             <Card
@@ -43,9 +44,9 @@ const QuickActions = () => {
                     {action.icon}
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
                   {action.title}
-                </h3>
+                </h2>
                 <p className="text-gray-600 text-sm">
                   {action.description}
                 </p>
@@ -62,9 +63,9 @@ const QuickActions = () => {
                     <Briefcase className="w-6 h-6 text-[#73D700]" />
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
                   Devenez partenaire
-                </h3>
+                </h2>
                 <p className="text-gray-600 text-sm mb-4">
                   Vous êtes propriétaire d'une compagnie ? 
                   Augmentez vos ventes en rejoignant notre plateforme.
